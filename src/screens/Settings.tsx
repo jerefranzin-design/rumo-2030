@@ -1,3 +1,4 @@
+import { Logo } from '../components/Logo';
 import { useEffect, useRef, useState } from 'react';
 import { exportData, getGoal, importData, resetAll, saveGoal, type Goal } from '../lib/db';
 import { centsToInput, parseMoney, todayISO } from '../lib/format';
@@ -7,7 +8,7 @@ const fromPct = (s: string) => Number(s.replace(',', '.')) / 100;
 
 export function Settings() {
   const [goal, setGoal] = useState<Goal | null>(null);
-  const [form, setForm] = useState({ name: '', target: '', deadline: '', initialSaved: '', annualReturn: '', annualPriceIncrease: '' });
+  const [form, setForm] = useState({ name: '', target: '', deadline: '', initialSaved: '', monthlyReturn: '', annualPriceIncrease: '' });
   const [msg, setMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -16,7 +17,7 @@ export function Settings() {
       setGoal(g);
       setForm({
         name: g.name, target: centsToInput(g.target), deadline: g.deadline, initialSaved: centsToInput(g.initialSaved),
-        annualReturn: toPct(g.annualReturn), annualPriceIncrease: toPct(g.annualPriceIncrease)
+        monthlyReturn: toPct(g.monthlyReturn), annualPriceIncrease: toPct(g.annualPriceIncrease)
       });
     });
   }, []);
@@ -29,12 +30,12 @@ export function Settings() {
       target: parseMoney(form.target),
       deadline: form.deadline,
       initialSaved: parseMoney(form.initialSaved || '0'),
-      annualReturn: fromPct(form.annualReturn || '0'),
+      monthlyReturn: fromPct(form.monthlyReturn || '0'),
       annualPriceIncrease: fromPct(form.annualPriceIncrease || '0')
     };
     if (!(next.target > 0)) return setMsg('Preço inválido');
     if (!/^\d{4}-\d{2}$/.test(next.deadline)) return setMsg('Prazo inválido');
-    if ([next.initialSaved, next.annualReturn, next.annualPriceIncrease].some((v) => !Number.isFinite(v))) return setMsg('Confira os números');
+    if ([next.initialSaved, next.monthlyReturn, next.annualPriceIncrease].some((v) => !Number.isFinite(v))) return setMsg('Confira os números');
     await saveGoal(next);
     setGoal(next);
     setMsg('Meta salva ✓');
@@ -64,25 +65,26 @@ export function Settings() {
 
   return (
     <div className="screen">
-      <header className="top"><h1>Ajustes</h1></header>
+      <header className="top"><Logo /></header>
+      <div className="titulo-tela"><h1><em>Ajustes</em></h1></div>
 
       <section className="card form">
-        <h3>Meta</h3>
+        <h3><em>Meta</em></h3>
         <label className="field"><span className="field-label">Nome</span><input value={form.name} onChange={set('name')} /></label>
         <label className="field"><span className="field-label">Preço hoje (R$)</span><input inputMode="decimal" value={form.target} onChange={set('target')} /></label>
         <label className="field"><span className="field-label">Prazo</span><input type="month" value={form.deadline} onChange={set('deadline')} /></label>
         <label className="field"><span className="field-label">Já tenho guardado (R$)</span><input inputMode="decimal" value={form.initialSaved} onChange={set('initialSaved')} /></label>
         <div className="grid2 tight">
-          <label className="field"><span className="field-label">Rendimento % a.a.</span><input inputMode="decimal" value={form.annualReturn} onChange={set('annualReturn')} /></label>
+          <label className="field"><span className="field-label">Rendimento % a.m.</span><input inputMode="decimal" value={form.monthlyReturn} onChange={set('monthlyReturn')} /></label>
           <label className="field"><span className="field-label">Alta do preço % a.a.</span><input inputMode="decimal" value={form.annualPriceIncrease} onChange={set('annualPriceIncrease')} /></label>
         </div>
-        <p className="muted small">O rendimento é quanto teu dinheiro guardado rende (ex.: CDB/Tesouro). A alta do preço estima quanto o carro encarece por ano.</p>
+        <p className="muted small">O rendimento é quanto teu dinheiro guardado rende por mês, com juros compostos. A alta do preço estima quanto o carro encarece por ano.</p>
         <button className="btn primary" onClick={save}>Salvar meta</button>
         {msg && <p className="muted small center">{msg}</p>}
       </section>
 
       <section className="card form">
-        <h3>Dados</h3>
+        <h3><em>Dados</em></h3>
         <p className="muted small">Tudo fica salvo só neste aparelho. Faça backup de vez em quando.</p>
         <button className="btn" onClick={doExport}>Exportar backup</button>
         <button className="btn" onClick={() => fileRef.current?.click()}>Importar backup</button>
@@ -91,6 +93,8 @@ export function Settings() {
           Apagar tudo
         </button>
       </section>
+
+      <p className="assinatura">feito por<br /><span className="logo"><em>Studio</em>Jeremias<sup>©</sup></span></p>
     </div>
   );
 }

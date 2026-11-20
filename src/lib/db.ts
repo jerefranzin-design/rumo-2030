@@ -22,18 +22,18 @@ export interface Goal {
   deadline: string;
   /** quanto já tinha guardado antes de usar o app, em centavos */
   initialSaved: number;
-  /** rendimento anual esperado do dinheiro guardado (0.12 = 12% a.a.) */
-  annualReturn: number;
+  /** rendimento mensal composto do dinheiro guardado (0.012 = 1,2% a.m.) */
+  monthlyReturn: number;
   /** quanto o preço do carro sobe por ano (0.05 = 5% a.a.) */
   annualPriceIncrease: number;
 }
 
 export const DEFAULT_GOAL: Goal = {
   name: 'M3 Competition',
-  target: 1_000_000_00,
-  deadline: '2030-12',
+  target: 560_000_00,
+  deadline: '2035-12',
   initialSaved: 0,
-  annualReturn: 0.12,
+  monthlyReturn: 0.012,
   annualPriceIncrease: 0.05
 };
 
@@ -56,7 +56,13 @@ export const CATEGORIES: Record<TxType, string[]> = {
 
 export async function getGoal(): Promise<Goal> {
   const row = await db.kv.get('goal');
-  return { ...DEFAULT_GOAL, ...((row?.value as Partial<Goal>) ?? {}) };
+  return normalizeGoal((row?.value as Partial<Goal> & { annualReturn?: number }) ?? {});
+}
+
+/** metas salvas antes guardavam `annualReturn` (% a.a.); agora o rendimento é mensal */
+function normalizeGoal(g: Partial<Goal> & { annualReturn?: number }): Goal {
+  const { annualReturn: _old, ...rest } = g;
+  return { ...DEFAULT_GOAL, ...rest };
 }
 
 export async function saveGoal(goal: Goal) {
@@ -73,7 +79,7 @@ export async function importData(data: unknown) {
   await db.transaction('rw', db.tx, db.kv, async () => {
     await db.tx.clear();
     await db.tx.bulkAdd(d.tx!.map(({ id: _id, ...t }) => t));
-    if (d.goal) await saveGoal({ ...DEFAULT_GOAL, ...d.goal });
+    if (d.goal) await saveGoal(normalizeGoal(d.goal));
   });
 }
 

@@ -29,6 +29,7 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="fundo" aria-hidden><div className="grao" /><div className="grade"><span /><span /><span /></div></div>
       <main>
         {tab === 'home' && <Home month={month} setMonth={setMonth} onEdit={edit} goTo={setTab} />}
         {tab === 'tx' && <Transactions month={month} setMonth={setMonth} onEdit={edit} />}

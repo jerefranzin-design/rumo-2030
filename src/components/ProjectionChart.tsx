@@ -18,22 +18,22 @@ export function ProjectionChart({ series, deadline }: { series: Point[]; deadlin
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" role="img" aria-label="Projeção do valor guardado versus preço do carro">
         <defs>
           <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--accent)" stopOpacity=".35" />
-            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+            <stop offset="0%" stopColor="var(--ouro)" stopOpacity=".35" />
+            <stop offset="100%" stopColor="var(--ouro)" stopOpacity="0" />
           </linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map((f) => (
-          <line key={f} x1={pl} x2={W - pr} y1={pt + f * (H - pt - pb)} y2={pt + f * (H - pt - pb)} stroke="var(--grid)" />
+          <line key={f} x1={pl} x2={W - pr} y1={pt + f * (H - pt - pb)} y2={pt + f * (H - pt - pb)} stroke="var(--line)" />
         ))}
         {di > 0 && (
           <g>
-            <line x1={x(di)} x2={x(di)} y1={pt} y2={H - pb} stroke="var(--muted)" strokeDasharray="3 4" />
+            <line x1={x(di)} x2={x(di)} y1={pt} y2={H - pb} stroke="var(--line)" strokeDasharray="3 4" />
             <text x={x(di) - 4} y={pt + 10} textAnchor="end" className="chart-label">prazo</text>
           </g>
         )}
         <path d={area} fill="url(#areaGrad)" />
-        <path d={line('price')} fill="none" stroke="var(--danger)" strokeWidth={2} strokeDasharray="5 4" />
-        <path d={line('saved')} fill="none" stroke="var(--accent)" strokeWidth={2.5} />
+        <path d={line('price')} fill="none" stroke="var(--papel)" strokeOpacity={0.7} strokeWidth={2} strokeDasharray="5 4" />
+        <path d={line('saved')} fill="none" stroke="var(--ouro)" strokeWidth={2} />
         {ticks.map((i) => (
           <text key={i} x={x(i)} y={H - 6} textAnchor={i === 0 ? 'start' : i === series.length - 1 ? 'end' : 'middle'} className="chart-label">
             {monthShort(series[i].ym)}
@@ -41,7 +41,7 @@ export function ProjectionChart({ series, deadline }: { series: Point[]; deadlin
         ))}
       </svg>
       <div className="legend">
-        <span><i style={{ background: 'var(--accent)' }} /> Guardado no seu ritmo</span>
+        <span><i style={{ background: 'var(--ouro)' }} /> Guardado no seu ritmo</span>
         <span><i className="dashed" /> Preço do carro ({brlCompact(series[series.length - 1].price)})</span>
       </div>
     </div>

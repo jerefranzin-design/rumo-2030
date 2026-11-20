@@ -31,7 +31,7 @@ export function computeGoal(goal: Goal, entries: Tx[]): GoalStats {
   const now = currentMonth();
   const saved = goal.initialSaved + entries.reduce((s, t) => s + t.amount, 0);
   const months = Math.max(0, monthsBetween(now, goal.deadline));
-  const r = monthlyRate(goal.annualReturn);
+  const r = goal.monthlyReturn;
   const i = monthlyRate(goal.annualPriceIncrease);
   const priceAt = (n: number) => goal.target * Math.pow(1 + i, n);
   const targetAtDeadline = priceAt(months);

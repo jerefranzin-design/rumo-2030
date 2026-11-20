@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Logo } from '../components/Logo';
 import { MonthPicker } from '../components/MonthPicker';
 import { TxRow } from '../components/TxRow';
 import type { Tx, TxType } from '../lib/db';
@@ -25,7 +26,7 @@ export function Transactions({ month, setMonth, onEdit }: { month: string; setMo
 
   return (
     <div className="screen">
-      <header className="top"><MonthPicker month={month} setMonth={setMonth} /></header>
+      <header className="top"><Logo /><MonthPicker month={month} setMonth={setMonth} /></header>
       <div className="chips scroll">
         {FILTERS.map((f) => (
           <button key={f.key} className={`chip ${filter === f.key ? 'on' : ''}`} onClick={() => setFilter(f.key)}>{f.label}</button>
@@ -38,7 +39,7 @@ export function Transactions({ month, setMonth, onEdit }: { month: string; setMo
         const net = items.reduce((s, t) => s + (t.type === 'income' ? t.amount : -Math.abs(t.amount)), 0);
         return (
           <section key={date} className="card day">
-            <div className="day-head"><span>{dayLabel(date)}</span><small className="muted">{brl(net)}</small></div>
+            <div className="day-head"><span className="rotulo">{dayLabel(date)}</span><small className="muted num">{brl(net)}</small></div>
             {items.map((t) => <TxRow key={t.id} tx={t} onClick={() => onEdit(t)} />)}
           </section>
         );

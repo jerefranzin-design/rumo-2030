@@ -8,14 +8,21 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon-192.png'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,png,webp}'],
+        // guarda a fonte Archivo para o app funcionar offline
+        runtimeCaching: [
+          { urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/, handler: 'CacheFirst', options: { cacheName: 'fontes', expiration: { maxEntries: 20, maxAgeSeconds: 31536000 }, cacheableResponse: { statuses: [0, 200] } } }
+        ]
+      },
       manifest: {
-        name: 'Rumo 2030',
-        short_name: 'Rumo 2030',
-        description: 'Organização financeira com foco na meta 2030',
+        name: 'Studio Jeremias',
+        short_name: 'Studio Jeremias',
+        description: 'Organização financeira com foco na meta',
         lang: 'pt-BR',
-        theme_color: '#0b0f17',
-        background_color: '#0b0f17',
+        theme_color: '#0e1111',
+        background_color: '#0e1111',
         display: 'standalone',
         orientation: 'portrait',
         start_url: './',

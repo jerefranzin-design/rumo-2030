@@ -1,7 +1,8 @@
+import { Contraste, Logo } from '../components/Logo';
 import { MonthPicker } from '../components/MonthPicker';
 import { TxRow } from '../components/TxRow';
 import type { Tx } from '../lib/db';
-import { brl, durationLabel, pct } from '../lib/format';
+import { brl, pct } from '../lib/format';
 import { useGoal, useMonthTx } from '../lib/hooks';
 import { sortTx, summarize } from '../lib/summary';
 
@@ -16,42 +17,37 @@ export function Home({ month, setMonth, onEdit, goTo }: Props) {
 
   return (
     <div className="screen">
-      <header className="top">
-        <MonthPicker month={month} setMonth={setMonth} />
-      </header>
+      <header className="top"><Logo /><MonthPicker month={month} setMonth={setMonth} /></header>
 
       <section className="hero card">
-        <span className="label">Sobrou no mês</span>
-        <strong className={`big ${s.free < 0 ? 'neg' : ''}`}>{brl(s.free)}</strong>
+        <div className="hero-top">
+          <span className="rotulo">Sobrou no mês</span>
+          <strong className={`big ${s.free < 0 ? 'neg' : ''}`}>{brl(s.free)}</strong>
+        </div>
         <div className="kpis">
-          <div><span className="label">Receitas</span><b className="pos">{brl(s.income)}</b></div>
-          <div><span className="label">Despesas</span><b className="neg">{brl(s.expense)}</b></div>
-          <div><span className="label">Guardado</span><b className="acc">{brl(s.saved)}</b></div>
+          <div><span className="rotulo">Receitas</span><b className="pos">{brl(s.income)}</b></div>
+          <div><span className="rotulo">Despesas</span><b className="neg">{brl(s.expense)}</b></div>
+          <div><span className="rotulo">Guardado</span><b className="acc">{brl(s.saved)}</b></div>
         </div>
       </section>
 
       {g && (
-        <button className="card goal-mini" onClick={() => goTo('goal')}>
+        <button className="card goal-mini" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}img/m3-interna.webp)` }} onClick={() => goTo('goal')}>
           <div className="goal-mini-head">
-            <span className="label">Meta · {g.goal.name}</span>
-            <b>{pct(g.stats.progress, 1)}</b>
+            <h3><Contraste text={g.goal.name} /></h3>
+            <b>{pct(Math.min(1, g.stats.saved / g.goal.target), 1)}</b>
           </div>
-          <div className="bar"><i style={{ width: `${g.stats.progress * 100}%` }} /></div>
+          <div className="bar"><i style={{ width: `${Math.min(1, g.stats.saved / g.goal.target) * 100}%` }} /></div>
           <div className="goal-mini-foot">
             <span>{brl(g.stats.saved)} guardados</span>
-            <span>
-              {g.stats.months > 0
-                ? <>guarde <b>{brl(g.stats.neededMonthly)}</b>/mês</>
-                : 'prazo chegou'}
-            </span>
+            <span>faltam <b>{brl(Math.max(0, g.goal.target - g.stats.saved))}</b></span>
           </div>
-          {g.stats.months > 0 && <small className="muted">Faltam {durationLabel(g.stats.months)}</small>}
         </button>
       )}
 
       {s.categories.length > 0 && (
         <section className="card">
-          <h3>Para onde foi o dinheiro</h3>
+          <h3><em>Para onde</em> foi o dinheiro</h3>
           <ul className="cat-bars">
             {s.categories.map(([cat, v]) => (
               <li key={cat}>
@@ -65,7 +61,7 @@ export function Home({ month, setMonth, onEdit, goTo }: Props) {
 
       <section className="card">
         <div className="card-head">
-          <h3>Últimos lançamentos</h3>
+          <h3><em>Últimos</em> lançamentos</h3>
           {txs.length > 5 && <button className="link" onClick={() => goTo('tx')}>Ver todos</button>}
         </div>
         {recent.length === 0 ? (

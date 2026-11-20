@@ -37,13 +37,13 @@ export function TxSheet({ tx, defaultType = 'expense', onClose }: { tx: Tx | nul
 
   return (
     <div className="sheet-backdrop" onClick={onClose}>
-      <div className="sheet" role="dialog" aria-label="Lançamento" onClick={(e) => e.stopPropagation()}>
+      <div className="sheet claro" role="dialog" aria-label="Lançamento" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-head">
-          <h2>{tx ? 'Editar' : 'Novo'} lançamento</h2>
+          <h2><em>{tx ? 'Editar' : 'Novo'}</em> lançamento</h2>
           <button className="icon-btn" onClick={onClose} aria-label="Fechar"><Icon name="x" /></button>
         </div>
 
-        <div className={`segmented seg-${type}`}>
+        <div className="segmented">
           {(Object.keys(TYPE_LABEL) as TxType[]).map((t) => (
             <button key={t} className={t === type ? 'on' : ''} onClick={() => changeType(t)}>{TYPE_LABEL[t]}</button>
           ))}

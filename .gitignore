@@ -2,3 +2,6 @@ node_modules
 dist
 dev-dist
 *.tsbuildinfo
+
+# fotos e capturas de referência (originais grandes)
+docs/
