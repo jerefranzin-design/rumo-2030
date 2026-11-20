@@ -3,12 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { exportData, getGoal, importData, resetAll, saveGoal, type Goal } from '../lib/db';
 import { centsToInput, parseMoney, todayISO } from '../lib/format';
 
-const toPct = (x: number) => (x * 100).toLocaleString('pt-BR', { maximumFractionDigits: 2 });
-const fromPct = (s: string) => Number(s.replace(',', '.')) / 100;
-
 export function Settings() {
   const [goal, setGoal] = useState<Goal | null>(null);
-  const [form, setForm] = useState({ name: '', target: '', deadline: '', initialSaved: '', monthlyReturn: '', annualPriceIncrease: '' });
+  const [form, setForm] = useState({ name: '', target: '', initialSaved: '' });
   const [msg, setMsg] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -16,8 +13,7 @@ export function Settings() {
     getGoal().then((g) => {
       setGoal(g);
       setForm({
-        name: g.name, target: centsToInput(g.target), deadline: g.deadline, initialSaved: centsToInput(g.initialSaved),
-        monthlyReturn: toPct(g.monthlyReturn), annualPriceIncrease: toPct(g.annualPriceIncrease)
+        name: g.name, target: centsToInput(g.target), initialSaved: centsToInput(g.initialSaved)
       });
     });
   }, []);
@@ -25,17 +21,16 @@ export function Settings() {
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
 
   async function save() {
+    if (!goal) return;
+    // prazo, rendimento e alta do preço não aparecem mais na tela; mantém o que já estava salvo
     const next: Goal = {
+      ...goal,
       name: form.name.trim() || 'Minha meta',
       target: parseMoney(form.target),
-      deadline: form.deadline,
-      initialSaved: parseMoney(form.initialSaved || '0'),
-      monthlyReturn: fromPct(form.monthlyReturn || '0'),
-      annualPriceIncrease: fromPct(form.annualPriceIncrease || '0')
+      initialSaved: parseMoney(form.initialSaved || '0')
     };
     if (!(next.target > 0)) return setMsg('Preço inválido');
-    if (!/^\d{4}-\d{2}$/.test(next.deadline)) return setMsg('Prazo inválido');
-    if ([next.initialSaved, next.monthlyReturn, next.annualPriceIncrease].some((v) => !Number.isFinite(v))) return setMsg('Confira os números');
+    if (!Number.isFinite(next.initialSaved)) return setMsg('Confira os números');
     await saveGoal(next);
     setGoal(next);
     setMsg('Meta salva ✓');
@@ -72,13 +67,7 @@ export function Settings() {
         <h3><em>Meta</em></h3>
         <label className="field"><span className="field-label">Nome</span><input value={form.name} onChange={set('name')} /></label>
         <label className="field"><span className="field-label">Preço hoje (R$)</span><input inputMode="decimal" value={form.target} onChange={set('target')} /></label>
-        <label className="field"><span className="field-label">Prazo</span><input type="month" value={form.deadline} onChange={set('deadline')} /></label>
         <label className="field"><span className="field-label">Já tenho guardado (R$)</span><input inputMode="decimal" value={form.initialSaved} onChange={set('initialSaved')} /></label>
-        <div className="grid2 tight">
-          <label className="field"><span className="field-label">Rendimento % a.m.</span><input inputMode="decimal" value={form.monthlyReturn} onChange={set('monthlyReturn')} /></label>
-          <label className="field"><span className="field-label">Alta do preço % a.a.</span><input inputMode="decimal" value={form.annualPriceIncrease} onChange={set('annualPriceIncrease')} /></label>
-        </div>
-        <p className="muted small">O rendimento é quanto teu dinheiro guardado rende por mês, com juros compostos. A alta do preço estima quanto o carro encarece por ano.</p>
         <button className="btn primary" onClick={save}>Salvar meta</button>
         {msg && <p className="muted small center">{msg}</p>}
       </section>
